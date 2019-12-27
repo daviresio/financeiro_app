@@ -89,7 +89,6 @@ class Database extends _$Database {
   MigrationStrategy get migration => MigrationStrategy(
       onCreate: (Migrator m) async {
         m.createAllTables().then((onValue) async {
-          print('fui invokado');
           await into(categorias).insert(Categoria(nome: 'Alimentacao', icone: 'alimentacao', cor: 'azul', tipo: 'despesa', createdAt: DateTime.now(), updatedAt: DateTime.now()));
           await into(categorias).insert(Categoria(nome: 'Educacao', icone: 'educacao', cor: 'azul', tipo: 'despesa', createdAt: DateTime.now(), updatedAt: DateTime.now()));
           await into(categorias).insert(Categoria(nome: 'Lazer', icone: 'lazer', cor: 'vermelho', tipo: 'despesa', createdAt: DateTime.now(), updatedAt: DateTime.now()));
@@ -102,7 +101,7 @@ class Database extends _$Database {
           await into(categorias).insert(Categoria(nome: 'Investimentos', icone: 'investimentos', cor: 'verde', tipo: 'receita', createdAt: DateTime.now(), updatedAt: DateTime.now()));
           await into(categorias).insert(Categoria(nome: 'Outros', icone: 'outros', cor: 'vermelho', tipo: 'receita', createdAt: DateTime.now(), updatedAt: DateTime.now()));
           await into(categorias).insert(Categoria(nome: 'Presente', icone: 'presente', cor: 'roxo', tipo: 'receita', createdAt: DateTime.now(), updatedAt: DateTime.now()));
-          await into(categorias).insert(Categoria(nome: 'Premios', icone: 'premios', cor: 'laranja', tipo: 'receita', createdAt: DateTime.now(), updatedAt: DateTime.now()));
+          await into(categorias).insert(Categoria(nome: 'Premios', icone: 'premios', cor: 'laranjado', tipo: 'receita', createdAt: DateTime.now(), updatedAt: DateTime.now()));
           await into(categorias).insert(Categoria(nome: 'Salario', icone: 'salario', cor: 'azul', tipo: 'receita', createdAt: DateTime.now(), updatedAt: DateTime.now()));
 
           await into(contas).insert(Conta(nome: 'Carteira', tipo: 'dinheiro', cor: 'azul', incluirSomaTelaInicial: true, createdAt: DateTime.now(), updatedAt: DateTime.now()));

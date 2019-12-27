@@ -9,6 +9,8 @@ class ContaDao extends DatabaseAccessor<Database> with _$ContaDaoMixin {
 
   ContaDao(this.db) : super(db);
 
+  Future<Conta> find(int id) => (select(contas)..where((t) => t.id.equals(id))).getSingle();
+
   Stream<List<Conta>> listContas() => select(contas).watch();
 
   Future insertConta(Conta conta) => into(contas).insert(conta.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now()));

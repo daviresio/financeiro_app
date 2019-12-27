@@ -9,7 +9,11 @@ class CategoriaDao extends DatabaseAccessor<Database> with _$CategoriaDaoMixin {
 
   CategoriaDao(this.db) : super(db);
 
+  Future<Categoria> find(int id) => (select(categorias)..where((t) => t.id.equals(id))).getSingle();
+
   Stream<List<Categoria>> listCategorias() => select(categorias).watch();
+
+  Stream<List<Categoria>> search(String v) => (select(categorias)..where((t) => t.nome.like('%$v%'))).watch();
 
   Future insertCategoria(Categoria categoria) => into(categorias).insert(categoria.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now()));
 
