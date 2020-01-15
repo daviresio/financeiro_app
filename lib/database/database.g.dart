@@ -9,31 +9,35 @@ part of 'database.dart';
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
 class Despesa extends DataClass implements Insertable<Despesa> {
   final int id;
+  final double valor;
   final String nome;
   final String anexo;
   final String localizacao;
   final String observacao;
-  final bool despesaFixa;
+  final bool fixo;
   final bool pago;
   final bool favorito;
   final DateTime data;
   final DateTime lembrete;
   final int categoriaId;
+  final int subcategoriaId;
   final int contaId;
   final DateTime createdAt;
   final DateTime updatedAt;
   Despesa(
       {@required this.id,
-      @required this.nome,
-      @required this.anexo,
-      @required this.localizacao,
-      @required this.observacao,
-      @required this.despesaFixa,
+      @required this.valor,
+      this.nome,
+      this.anexo,
+      this.localizacao,
+      this.observacao,
+      @required this.fixo,
       @required this.pago,
       @required this.favorito,
       @required this.data,
-      @required this.lembrete,
+      this.lembrete,
       @required this.categoriaId,
+      this.subcategoriaId,
       @required this.contaId,
       @required this.createdAt,
       @required this.updatedAt});
@@ -41,11 +45,14 @@ class Despesa extends DataClass implements Insertable<Despesa> {
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
+    final doubleType = db.typeSystem.forDartType<double>();
     final stringType = db.typeSystem.forDartType<String>();
     final boolType = db.typeSystem.forDartType<bool>();
     final dateTimeType = db.typeSystem.forDartType<DateTime>();
     return Despesa(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      valor:
+          doubleType.mapFromDatabaseResponse(data['${effectivePrefix}valor']),
       nome: stringType.mapFromDatabaseResponse(data['${effectivePrefix}nome']),
       anexo:
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}anexo']),
@@ -53,8 +60,7 @@ class Despesa extends DataClass implements Insertable<Despesa> {
           .mapFromDatabaseResponse(data['${effectivePrefix}localizacao']),
       observacao: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}observacao']),
-      despesaFixa: boolType
-          .mapFromDatabaseResponse(data['${effectivePrefix}despesa_fixa']),
+      fixo: boolType.mapFromDatabaseResponse(data['${effectivePrefix}fixo']),
       pago: boolType.mapFromDatabaseResponse(data['${effectivePrefix}pago']),
       favorito:
           boolType.mapFromDatabaseResponse(data['${effectivePrefix}favorito']),
@@ -64,6 +70,8 @@ class Despesa extends DataClass implements Insertable<Despesa> {
           .mapFromDatabaseResponse(data['${effectivePrefix}lembrete']),
       categoriaId: intType
           .mapFromDatabaseResponse(data['${effectivePrefix}categoria_id']),
+      subcategoriaId: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}subcategoria_id']),
       contaId:
           intType.mapFromDatabaseResponse(data['${effectivePrefix}conta_id']),
       createdAt: dateTimeType
@@ -76,16 +84,18 @@ class Despesa extends DataClass implements Insertable<Despesa> {
       {ValueSerializer serializer = const ValueSerializer.defaults()}) {
     return Despesa(
       id: serializer.fromJson<int>(json['id']),
+      valor: serializer.fromJson<double>(json['valor']),
       nome: serializer.fromJson<String>(json['nome']),
       anexo: serializer.fromJson<String>(json['anexo']),
       localizacao: serializer.fromJson<String>(json['localizacao']),
       observacao: serializer.fromJson<String>(json['observacao']),
-      despesaFixa: serializer.fromJson<bool>(json['despesaFixa']),
+      fixo: serializer.fromJson<bool>(json['fixo']),
       pago: serializer.fromJson<bool>(json['pago']),
       favorito: serializer.fromJson<bool>(json['favorito']),
       data: serializer.fromJson<DateTime>(json['data']),
       lembrete: serializer.fromJson<DateTime>(json['lembrete']),
       categoriaId: serializer.fromJson<int>(json['categoriaId']),
+      subcategoriaId: serializer.fromJson<int>(json['subcategoriaId']),
       contaId: serializer.fromJson<int>(json['contaId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -96,16 +106,18 @@ class Despesa extends DataClass implements Insertable<Despesa> {
       {ValueSerializer serializer = const ValueSerializer.defaults()}) {
     return {
       'id': serializer.toJson<int>(id),
+      'valor': serializer.toJson<double>(valor),
       'nome': serializer.toJson<String>(nome),
       'anexo': serializer.toJson<String>(anexo),
       'localizacao': serializer.toJson<String>(localizacao),
       'observacao': serializer.toJson<String>(observacao),
-      'despesaFixa': serializer.toJson<bool>(despesaFixa),
+      'fixo': serializer.toJson<bool>(fixo),
       'pago': serializer.toJson<bool>(pago),
       'favorito': serializer.toJson<bool>(favorito),
       'data': serializer.toJson<DateTime>(data),
       'lembrete': serializer.toJson<DateTime>(lembrete),
       'categoriaId': serializer.toJson<int>(categoriaId),
+      'subcategoriaId': serializer.toJson<int>(subcategoriaId),
       'contaId': serializer.toJson<int>(contaId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -116,6 +128,8 @@ class Despesa extends DataClass implements Insertable<Despesa> {
   DespesasCompanion createCompanion(bool nullToAbsent) {
     return DespesasCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      valor:
+          valor == null && nullToAbsent ? const Value.absent() : Value(valor),
       nome: nome == null && nullToAbsent ? const Value.absent() : Value(nome),
       anexo:
           anexo == null && nullToAbsent ? const Value.absent() : Value(anexo),
@@ -125,9 +139,7 @@ class Despesa extends DataClass implements Insertable<Despesa> {
       observacao: observacao == null && nullToAbsent
           ? const Value.absent()
           : Value(observacao),
-      despesaFixa: despesaFixa == null && nullToAbsent
-          ? const Value.absent()
-          : Value(despesaFixa),
+      fixo: fixo == null && nullToAbsent ? const Value.absent() : Value(fixo),
       pago: pago == null && nullToAbsent ? const Value.absent() : Value(pago),
       favorito: favorito == null && nullToAbsent
           ? const Value.absent()
@@ -139,6 +151,9 @@ class Despesa extends DataClass implements Insertable<Despesa> {
       categoriaId: categoriaId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoriaId),
+      subcategoriaId: subcategoriaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subcategoriaId),
       contaId: contaId == null && nullToAbsent
           ? const Value.absent()
           : Value(contaId),
@@ -153,31 +168,35 @@ class Despesa extends DataClass implements Insertable<Despesa> {
 
   Despesa copyWith(
           {int id,
+          double valor,
           String nome,
           String anexo,
           String localizacao,
           String observacao,
-          bool despesaFixa,
+          bool fixo,
           bool pago,
           bool favorito,
           DateTime data,
           DateTime lembrete,
           int categoriaId,
+          int subcategoriaId,
           int contaId,
           DateTime createdAt,
           DateTime updatedAt}) =>
       Despesa(
         id: id ?? this.id,
+        valor: valor ?? this.valor,
         nome: nome ?? this.nome,
         anexo: anexo ?? this.anexo,
         localizacao: localizacao ?? this.localizacao,
         observacao: observacao ?? this.observacao,
-        despesaFixa: despesaFixa ?? this.despesaFixa,
+        fixo: fixo ?? this.fixo,
         pago: pago ?? this.pago,
         favorito: favorito ?? this.favorito,
         data: data ?? this.data,
         lembrete: lembrete ?? this.lembrete,
         categoriaId: categoriaId ?? this.categoriaId,
+        subcategoriaId: subcategoriaId ?? this.subcategoriaId,
         contaId: contaId ?? this.contaId,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -186,16 +205,18 @@ class Despesa extends DataClass implements Insertable<Despesa> {
   String toString() {
     return (StringBuffer('Despesa(')
           ..write('id: $id, ')
+          ..write('valor: $valor, ')
           ..write('nome: $nome, ')
           ..write('anexo: $anexo, ')
           ..write('localizacao: $localizacao, ')
           ..write('observacao: $observacao, ')
-          ..write('despesaFixa: $despesaFixa, ')
+          ..write('fixo: $fixo, ')
           ..write('pago: $pago, ')
           ..write('favorito: $favorito, ')
           ..write('data: $data, ')
           ..write('lembrete: $lembrete, ')
           ..write('categoriaId: $categoriaId, ')
+          ..write('subcategoriaId: $subcategoriaId, ')
           ..write('contaId: $contaId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -207,46 +228,53 @@ class Despesa extends DataClass implements Insertable<Despesa> {
   int get hashCode => $mrjf($mrjc(
       id.hashCode,
       $mrjc(
-          nome.hashCode,
+          valor.hashCode,
           $mrjc(
-              anexo.hashCode,
+              nome.hashCode,
               $mrjc(
-                  localizacao.hashCode,
+                  anexo.hashCode,
                   $mrjc(
-                      observacao.hashCode,
+                      localizacao.hashCode,
                       $mrjc(
-                          despesaFixa.hashCode,
+                          observacao.hashCode,
                           $mrjc(
-                              pago.hashCode,
+                              fixo.hashCode,
                               $mrjc(
-                                  favorito.hashCode,
+                                  pago.hashCode,
                                   $mrjc(
-                                      data.hashCode,
+                                      favorito.hashCode,
                                       $mrjc(
-                                          lembrete.hashCode,
+                                          data.hashCode,
                                           $mrjc(
-                                              categoriaId.hashCode,
+                                              lembrete.hashCode,
                                               $mrjc(
-                                                  contaId.hashCode,
+                                                  categoriaId.hashCode,
                                                   $mrjc(
-                                                      createdAt.hashCode,
-                                                      updatedAt
-                                                          .hashCode))))))))))))));
+                                                      subcategoriaId.hashCode,
+                                                      $mrjc(
+                                                          contaId.hashCode,
+                                                          $mrjc(
+                                                              createdAt
+                                                                  .hashCode,
+                                                              updatedAt
+                                                                  .hashCode))))))))))))))));
   @override
   bool operator ==(other) =>
       identical(this, other) ||
       (other is Despesa &&
           other.id == this.id &&
+          other.valor == this.valor &&
           other.nome == this.nome &&
           other.anexo == this.anexo &&
           other.localizacao == this.localizacao &&
           other.observacao == this.observacao &&
-          other.despesaFixa == this.despesaFixa &&
+          other.fixo == this.fixo &&
           other.pago == this.pago &&
           other.favorito == this.favorito &&
           other.data == this.data &&
           other.lembrete == this.lembrete &&
           other.categoriaId == this.categoriaId &&
+          other.subcategoriaId == this.subcategoriaId &&
           other.contaId == this.contaId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -254,87 +282,93 @@ class Despesa extends DataClass implements Insertable<Despesa> {
 
 class DespesasCompanion extends UpdateCompanion<Despesa> {
   final Value<int> id;
+  final Value<double> valor;
   final Value<String> nome;
   final Value<String> anexo;
   final Value<String> localizacao;
   final Value<String> observacao;
-  final Value<bool> despesaFixa;
+  final Value<bool> fixo;
   final Value<bool> pago;
   final Value<bool> favorito;
   final Value<DateTime> data;
   final Value<DateTime> lembrete;
   final Value<int> categoriaId;
+  final Value<int> subcategoriaId;
   final Value<int> contaId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const DespesasCompanion({
     this.id = const Value.absent(),
+    this.valor = const Value.absent(),
     this.nome = const Value.absent(),
     this.anexo = const Value.absent(),
     this.localizacao = const Value.absent(),
     this.observacao = const Value.absent(),
-    this.despesaFixa = const Value.absent(),
+    this.fixo = const Value.absent(),
     this.pago = const Value.absent(),
     this.favorito = const Value.absent(),
     this.data = const Value.absent(),
     this.lembrete = const Value.absent(),
     this.categoriaId = const Value.absent(),
+    this.subcategoriaId = const Value.absent(),
     this.contaId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   DespesasCompanion.insert({
     this.id = const Value.absent(),
-    @required String nome,
-    @required String anexo,
-    @required String localizacao,
-    @required String observacao,
-    this.despesaFixa = const Value.absent(),
+    @required double valor,
+    this.nome = const Value.absent(),
+    this.anexo = const Value.absent(),
+    this.localizacao = const Value.absent(),
+    this.observacao = const Value.absent(),
+    this.fixo = const Value.absent(),
     this.pago = const Value.absent(),
     this.favorito = const Value.absent(),
     @required DateTime data,
-    @required DateTime lembrete,
+    this.lembrete = const Value.absent(),
     @required int categoriaId,
+    this.subcategoriaId = const Value.absent(),
     @required int contaId,
     @required DateTime createdAt,
     @required DateTime updatedAt,
-  })  : nome = Value(nome),
-        anexo = Value(anexo),
-        localizacao = Value(localizacao),
-        observacao = Value(observacao),
+  })  : valor = Value(valor),
         data = Value(data),
-        lembrete = Value(lembrete),
         categoriaId = Value(categoriaId),
         contaId = Value(contaId),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
   DespesasCompanion copyWith(
       {Value<int> id,
+      Value<double> valor,
       Value<String> nome,
       Value<String> anexo,
       Value<String> localizacao,
       Value<String> observacao,
-      Value<bool> despesaFixa,
+      Value<bool> fixo,
       Value<bool> pago,
       Value<bool> favorito,
       Value<DateTime> data,
       Value<DateTime> lembrete,
       Value<int> categoriaId,
+      Value<int> subcategoriaId,
       Value<int> contaId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt}) {
     return DespesasCompanion(
       id: id ?? this.id,
+      valor: valor ?? this.valor,
       nome: nome ?? this.nome,
       anexo: anexo ?? this.anexo,
       localizacao: localizacao ?? this.localizacao,
       observacao: observacao ?? this.observacao,
-      despesaFixa: despesaFixa ?? this.despesaFixa,
+      fixo: fixo ?? this.fixo,
       pago: pago ?? this.pago,
       favorito: favorito ?? this.favorito,
       data: data ?? this.data,
       lembrete: lembrete ?? this.lembrete,
       categoriaId: categoriaId ?? this.categoriaId,
+      subcategoriaId: subcategoriaId ?? this.subcategoriaId,
       contaId: contaId ?? this.contaId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -355,6 +389,18 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
         hasAutoIncrement: true, declaredAsPrimaryKey: true);
   }
 
+  final VerificationMeta _valorMeta = const VerificationMeta('valor');
+  GeneratedRealColumn _valor;
+  @override
+  GeneratedRealColumn get valor => _valor ??= _constructValor();
+  GeneratedRealColumn _constructValor() {
+    return GeneratedRealColumn(
+      'valor',
+      $tableName,
+      false,
+    );
+  }
+
   final VerificationMeta _nomeMeta = const VerificationMeta('nome');
   GeneratedTextColumn _nome;
   @override
@@ -363,7 +409,7 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     return GeneratedTextColumn(
       'nome',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -375,7 +421,7 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     return GeneratedTextColumn(
       'anexo',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -389,7 +435,7 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     return GeneratedTextColumn(
       'localizacao',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -401,18 +447,16 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     return GeneratedTextColumn(
       'observacao',
       $tableName,
-      false,
+      true,
     );
   }
 
-  final VerificationMeta _despesaFixaMeta =
-      const VerificationMeta('despesaFixa');
-  GeneratedBoolColumn _despesaFixa;
+  final VerificationMeta _fixoMeta = const VerificationMeta('fixo');
+  GeneratedBoolColumn _fixo;
   @override
-  GeneratedBoolColumn get despesaFixa =>
-      _despesaFixa ??= _constructDespesaFixa();
-  GeneratedBoolColumn _constructDespesaFixa() {
-    return GeneratedBoolColumn('despesa_fixa', $tableName, false,
+  GeneratedBoolColumn get fixo => _fixo ??= _constructFixo();
+  GeneratedBoolColumn _constructFixo() {
+    return GeneratedBoolColumn('fixo', $tableName, false,
         defaultValue: Constant(false));
   }
 
@@ -454,7 +498,7 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     return GeneratedDateTimeColumn(
       'lembrete',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -469,6 +513,20 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
       'categoria_id',
       $tableName,
       false,
+    );
+  }
+
+  final VerificationMeta _subcategoriaIdMeta =
+      const VerificationMeta('subcategoriaId');
+  GeneratedIntColumn _subcategoriaId;
+  @override
+  GeneratedIntColumn get subcategoriaId =>
+      _subcategoriaId ??= _constructSubcategoriaId();
+  GeneratedIntColumn _constructSubcategoriaId() {
+    return GeneratedIntColumn(
+      'subcategoria_id',
+      $tableName,
+      true,
     );
   }
 
@@ -511,16 +569,18 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        valor,
         nome,
         anexo,
         localizacao,
         observacao,
-        despesaFixa,
+        fixo,
         pago,
         favorito,
         data,
         lembrete,
         categoriaId,
+        subcategoriaId,
         contaId,
         createdAt,
         updatedAt
@@ -539,6 +599,12 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
       context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
     } else if (id.isRequired && isInserting) {
       context.missing(_idMeta);
+    }
+    if (d.valor.present) {
+      context.handle(
+          _valorMeta, valor.isAcceptableValue(d.valor.value, _valorMeta));
+    } else if (valor.isRequired && isInserting) {
+      context.missing(_valorMeta);
     }
     if (d.nome.present) {
       context.handle(
@@ -564,11 +630,11 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     } else if (observacao.isRequired && isInserting) {
       context.missing(_observacaoMeta);
     }
-    if (d.despesaFixa.present) {
-      context.handle(_despesaFixaMeta,
-          despesaFixa.isAcceptableValue(d.despesaFixa.value, _despesaFixaMeta));
-    } else if (despesaFixa.isRequired && isInserting) {
-      context.missing(_despesaFixaMeta);
+    if (d.fixo.present) {
+      context.handle(
+          _fixoMeta, fixo.isAcceptableValue(d.fixo.value, _fixoMeta));
+    } else if (fixo.isRequired && isInserting) {
+      context.missing(_fixoMeta);
     }
     if (d.pago.present) {
       context.handle(
@@ -599,6 +665,14 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
           categoriaId.isAcceptableValue(d.categoriaId.value, _categoriaIdMeta));
     } else if (categoriaId.isRequired && isInserting) {
       context.missing(_categoriaIdMeta);
+    }
+    if (d.subcategoriaId.present) {
+      context.handle(
+          _subcategoriaIdMeta,
+          subcategoriaId.isAcceptableValue(
+              d.subcategoriaId.value, _subcategoriaIdMeta));
+    } else if (subcategoriaId.isRequired && isInserting) {
+      context.missing(_subcategoriaIdMeta);
     }
     if (d.contaId.present) {
       context.handle(_contaIdMeta,
@@ -635,6 +709,9 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     if (d.id.present) {
       map['id'] = Variable<int, IntType>(d.id.value);
     }
+    if (d.valor.present) {
+      map['valor'] = Variable<double, RealType>(d.valor.value);
+    }
     if (d.nome.present) {
       map['nome'] = Variable<String, StringType>(d.nome.value);
     }
@@ -647,8 +724,8 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     if (d.observacao.present) {
       map['observacao'] = Variable<String, StringType>(d.observacao.value);
     }
-    if (d.despesaFixa.present) {
-      map['despesa_fixa'] = Variable<bool, BoolType>(d.despesaFixa.value);
+    if (d.fixo.present) {
+      map['fixo'] = Variable<bool, BoolType>(d.fixo.value);
     }
     if (d.pago.present) {
       map['pago'] = Variable<bool, BoolType>(d.pago.value);
@@ -665,6 +742,9 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
     if (d.categoriaId.present) {
       map['categoria_id'] = Variable<int, IntType>(d.categoriaId.value);
     }
+    if (d.subcategoriaId.present) {
+      map['subcategoria_id'] = Variable<int, IntType>(d.subcategoriaId.value);
+    }
     if (d.contaId.present) {
       map['conta_id'] = Variable<int, IntType>(d.contaId.value);
     }
@@ -680,6 +760,765 @@ class $DespesasTable extends Despesas with TableInfo<$DespesasTable, Despesa> {
   @override
   $DespesasTable createAlias(String alias) {
     return $DespesasTable(_db, alias);
+  }
+}
+
+class Receita extends DataClass implements Insertable<Receita> {
+  final int id;
+  final double valor;
+  final String nome;
+  final String anexo;
+  final String localizacao;
+  final String observacao;
+  final bool fixo;
+  final bool recebido;
+  final bool favorito;
+  final DateTime data;
+  final DateTime lembrete;
+  final int categoriaId;
+  final int subcategoriaId;
+  final int contaId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  Receita(
+      {@required this.id,
+      @required this.valor,
+      this.nome,
+      this.anexo,
+      this.localizacao,
+      this.observacao,
+      @required this.fixo,
+      @required this.recebido,
+      @required this.favorito,
+      @required this.data,
+      this.lembrete,
+      @required this.categoriaId,
+      this.subcategoriaId,
+      @required this.contaId,
+      @required this.createdAt,
+      @required this.updatedAt});
+  factory Receita.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final doubleType = db.typeSystem.forDartType<double>();
+    final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
+    final dateTimeType = db.typeSystem.forDartType<DateTime>();
+    return Receita(
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      valor:
+          doubleType.mapFromDatabaseResponse(data['${effectivePrefix}valor']),
+      nome: stringType.mapFromDatabaseResponse(data['${effectivePrefix}nome']),
+      anexo:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}anexo']),
+      localizacao: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}localizacao']),
+      observacao: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}observacao']),
+      fixo: boolType.mapFromDatabaseResponse(data['${effectivePrefix}fixo']),
+      recebido:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}recebido']),
+      favorito:
+          boolType.mapFromDatabaseResponse(data['${effectivePrefix}favorito']),
+      data:
+          dateTimeType.mapFromDatabaseResponse(data['${effectivePrefix}data']),
+      lembrete: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}lembrete']),
+      categoriaId: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}categoria_id']),
+      subcategoriaId: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}subcategoria_id']),
+      contaId:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}conta_id']),
+      createdAt: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}created_at']),
+      updatedAt: dateTimeType
+          .mapFromDatabaseResponse(data['${effectivePrefix}updated_at']),
+    );
+  }
+  factory Receita.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer = const ValueSerializer.defaults()}) {
+    return Receita(
+      id: serializer.fromJson<int>(json['id']),
+      valor: serializer.fromJson<double>(json['valor']),
+      nome: serializer.fromJson<String>(json['nome']),
+      anexo: serializer.fromJson<String>(json['anexo']),
+      localizacao: serializer.fromJson<String>(json['localizacao']),
+      observacao: serializer.fromJson<String>(json['observacao']),
+      fixo: serializer.fromJson<bool>(json['fixo']),
+      recebido: serializer.fromJson<bool>(json['recebido']),
+      favorito: serializer.fromJson<bool>(json['favorito']),
+      data: serializer.fromJson<DateTime>(json['data']),
+      lembrete: serializer.fromJson<DateTime>(json['lembrete']),
+      categoriaId: serializer.fromJson<int>(json['categoriaId']),
+      subcategoriaId: serializer.fromJson<int>(json['subcategoriaId']),
+      contaId: serializer.fromJson<int>(json['contaId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson(
+      {ValueSerializer serializer = const ValueSerializer.defaults()}) {
+    return {
+      'id': serializer.toJson<int>(id),
+      'valor': serializer.toJson<double>(valor),
+      'nome': serializer.toJson<String>(nome),
+      'anexo': serializer.toJson<String>(anexo),
+      'localizacao': serializer.toJson<String>(localizacao),
+      'observacao': serializer.toJson<String>(observacao),
+      'fixo': serializer.toJson<bool>(fixo),
+      'recebido': serializer.toJson<bool>(recebido),
+      'favorito': serializer.toJson<bool>(favorito),
+      'data': serializer.toJson<DateTime>(data),
+      'lembrete': serializer.toJson<DateTime>(lembrete),
+      'categoriaId': serializer.toJson<int>(categoriaId),
+      'subcategoriaId': serializer.toJson<int>(subcategoriaId),
+      'contaId': serializer.toJson<int>(contaId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  @override
+  ReceitasCompanion createCompanion(bool nullToAbsent) {
+    return ReceitasCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      valor:
+          valor == null && nullToAbsent ? const Value.absent() : Value(valor),
+      nome: nome == null && nullToAbsent ? const Value.absent() : Value(nome),
+      anexo:
+          anexo == null && nullToAbsent ? const Value.absent() : Value(anexo),
+      localizacao: localizacao == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localizacao),
+      observacao: observacao == null && nullToAbsent
+          ? const Value.absent()
+          : Value(observacao),
+      fixo: fixo == null && nullToAbsent ? const Value.absent() : Value(fixo),
+      recebido: recebido == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recebido),
+      favorito: favorito == null && nullToAbsent
+          ? const Value.absent()
+          : Value(favorito),
+      data: data == null && nullToAbsent ? const Value.absent() : Value(data),
+      lembrete: lembrete == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lembrete),
+      categoriaId: categoriaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoriaId),
+      subcategoriaId: subcategoriaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subcategoriaId),
+      contaId: contaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contaId),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  Receita copyWith(
+          {int id,
+          double valor,
+          String nome,
+          String anexo,
+          String localizacao,
+          String observacao,
+          bool fixo,
+          bool recebido,
+          bool favorito,
+          DateTime data,
+          DateTime lembrete,
+          int categoriaId,
+          int subcategoriaId,
+          int contaId,
+          DateTime createdAt,
+          DateTime updatedAt}) =>
+      Receita(
+        id: id ?? this.id,
+        valor: valor ?? this.valor,
+        nome: nome ?? this.nome,
+        anexo: anexo ?? this.anexo,
+        localizacao: localizacao ?? this.localizacao,
+        observacao: observacao ?? this.observacao,
+        fixo: fixo ?? this.fixo,
+        recebido: recebido ?? this.recebido,
+        favorito: favorito ?? this.favorito,
+        data: data ?? this.data,
+        lembrete: lembrete ?? this.lembrete,
+        categoriaId: categoriaId ?? this.categoriaId,
+        subcategoriaId: subcategoriaId ?? this.subcategoriaId,
+        contaId: contaId ?? this.contaId,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Receita(')
+          ..write('id: $id, ')
+          ..write('valor: $valor, ')
+          ..write('nome: $nome, ')
+          ..write('anexo: $anexo, ')
+          ..write('localizacao: $localizacao, ')
+          ..write('observacao: $observacao, ')
+          ..write('fixo: $fixo, ')
+          ..write('recebido: $recebido, ')
+          ..write('favorito: $favorito, ')
+          ..write('data: $data, ')
+          ..write('lembrete: $lembrete, ')
+          ..write('categoriaId: $categoriaId, ')
+          ..write('subcategoriaId: $subcategoriaId, ')
+          ..write('contaId: $contaId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          valor.hashCode,
+          $mrjc(
+              nome.hashCode,
+              $mrjc(
+                  anexo.hashCode,
+                  $mrjc(
+                      localizacao.hashCode,
+                      $mrjc(
+                          observacao.hashCode,
+                          $mrjc(
+                              fixo.hashCode,
+                              $mrjc(
+                                  recebido.hashCode,
+                                  $mrjc(
+                                      favorito.hashCode,
+                                      $mrjc(
+                                          data.hashCode,
+                                          $mrjc(
+                                              lembrete.hashCode,
+                                              $mrjc(
+                                                  categoriaId.hashCode,
+                                                  $mrjc(
+                                                      subcategoriaId.hashCode,
+                                                      $mrjc(
+                                                          contaId.hashCode,
+                                                          $mrjc(
+                                                              createdAt
+                                                                  .hashCode,
+                                                              updatedAt
+                                                                  .hashCode))))))))))))))));
+  @override
+  bool operator ==(other) =>
+      identical(this, other) ||
+      (other is Receita &&
+          other.id == this.id &&
+          other.valor == this.valor &&
+          other.nome == this.nome &&
+          other.anexo == this.anexo &&
+          other.localizacao == this.localizacao &&
+          other.observacao == this.observacao &&
+          other.fixo == this.fixo &&
+          other.recebido == this.recebido &&
+          other.favorito == this.favorito &&
+          other.data == this.data &&
+          other.lembrete == this.lembrete &&
+          other.categoriaId == this.categoriaId &&
+          other.subcategoriaId == this.subcategoriaId &&
+          other.contaId == this.contaId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ReceitasCompanion extends UpdateCompanion<Receita> {
+  final Value<int> id;
+  final Value<double> valor;
+  final Value<String> nome;
+  final Value<String> anexo;
+  final Value<String> localizacao;
+  final Value<String> observacao;
+  final Value<bool> fixo;
+  final Value<bool> recebido;
+  final Value<bool> favorito;
+  final Value<DateTime> data;
+  final Value<DateTime> lembrete;
+  final Value<int> categoriaId;
+  final Value<int> subcategoriaId;
+  final Value<int> contaId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const ReceitasCompanion({
+    this.id = const Value.absent(),
+    this.valor = const Value.absent(),
+    this.nome = const Value.absent(),
+    this.anexo = const Value.absent(),
+    this.localizacao = const Value.absent(),
+    this.observacao = const Value.absent(),
+    this.fixo = const Value.absent(),
+    this.recebido = const Value.absent(),
+    this.favorito = const Value.absent(),
+    this.data = const Value.absent(),
+    this.lembrete = const Value.absent(),
+    this.categoriaId = const Value.absent(),
+    this.subcategoriaId = const Value.absent(),
+    this.contaId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ReceitasCompanion.insert({
+    this.id = const Value.absent(),
+    @required double valor,
+    this.nome = const Value.absent(),
+    this.anexo = const Value.absent(),
+    this.localizacao = const Value.absent(),
+    this.observacao = const Value.absent(),
+    this.fixo = const Value.absent(),
+    this.recebido = const Value.absent(),
+    this.favorito = const Value.absent(),
+    @required DateTime data,
+    this.lembrete = const Value.absent(),
+    @required int categoriaId,
+    this.subcategoriaId = const Value.absent(),
+    @required int contaId,
+    @required DateTime createdAt,
+    @required DateTime updatedAt,
+  })  : valor = Value(valor),
+        data = Value(data),
+        categoriaId = Value(categoriaId),
+        contaId = Value(contaId),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  ReceitasCompanion copyWith(
+      {Value<int> id,
+      Value<double> valor,
+      Value<String> nome,
+      Value<String> anexo,
+      Value<String> localizacao,
+      Value<String> observacao,
+      Value<bool> fixo,
+      Value<bool> recebido,
+      Value<bool> favorito,
+      Value<DateTime> data,
+      Value<DateTime> lembrete,
+      Value<int> categoriaId,
+      Value<int> subcategoriaId,
+      Value<int> contaId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt}) {
+    return ReceitasCompanion(
+      id: id ?? this.id,
+      valor: valor ?? this.valor,
+      nome: nome ?? this.nome,
+      anexo: anexo ?? this.anexo,
+      localizacao: localizacao ?? this.localizacao,
+      observacao: observacao ?? this.observacao,
+      fixo: fixo ?? this.fixo,
+      recebido: recebido ?? this.recebido,
+      favorito: favorito ?? this.favorito,
+      data: data ?? this.data,
+      lembrete: lembrete ?? this.lembrete,
+      categoriaId: categoriaId ?? this.categoriaId,
+      subcategoriaId: subcategoriaId ?? this.subcategoriaId,
+      contaId: contaId ?? this.contaId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+}
+
+class $ReceitasTable extends Receitas with TableInfo<$ReceitasTable, Receita> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $ReceitasTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedIntColumn _id;
+  @override
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _valorMeta = const VerificationMeta('valor');
+  GeneratedRealColumn _valor;
+  @override
+  GeneratedRealColumn get valor => _valor ??= _constructValor();
+  GeneratedRealColumn _constructValor() {
+    return GeneratedRealColumn(
+      'valor',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _nomeMeta = const VerificationMeta('nome');
+  GeneratedTextColumn _nome;
+  @override
+  GeneratedTextColumn get nome => _nome ??= _constructNome();
+  GeneratedTextColumn _constructNome() {
+    return GeneratedTextColumn(
+      'nome',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _anexoMeta = const VerificationMeta('anexo');
+  GeneratedTextColumn _anexo;
+  @override
+  GeneratedTextColumn get anexo => _anexo ??= _constructAnexo();
+  GeneratedTextColumn _constructAnexo() {
+    return GeneratedTextColumn(
+      'anexo',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _localizacaoMeta =
+      const VerificationMeta('localizacao');
+  GeneratedTextColumn _localizacao;
+  @override
+  GeneratedTextColumn get localizacao =>
+      _localizacao ??= _constructLocalizacao();
+  GeneratedTextColumn _constructLocalizacao() {
+    return GeneratedTextColumn(
+      'localizacao',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _observacaoMeta = const VerificationMeta('observacao');
+  GeneratedTextColumn _observacao;
+  @override
+  GeneratedTextColumn get observacao => _observacao ??= _constructObservacao();
+  GeneratedTextColumn _constructObservacao() {
+    return GeneratedTextColumn(
+      'observacao',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _fixoMeta = const VerificationMeta('fixo');
+  GeneratedBoolColumn _fixo;
+  @override
+  GeneratedBoolColumn get fixo => _fixo ??= _constructFixo();
+  GeneratedBoolColumn _constructFixo() {
+    return GeneratedBoolColumn('fixo', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
+  final VerificationMeta _recebidoMeta = const VerificationMeta('recebido');
+  GeneratedBoolColumn _recebido;
+  @override
+  GeneratedBoolColumn get recebido => _recebido ??= _constructRecebido();
+  GeneratedBoolColumn _constructRecebido() {
+    return GeneratedBoolColumn('recebido', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
+  final VerificationMeta _favoritoMeta = const VerificationMeta('favorito');
+  GeneratedBoolColumn _favorito;
+  @override
+  GeneratedBoolColumn get favorito => _favorito ??= _constructFavorito();
+  GeneratedBoolColumn _constructFavorito() {
+    return GeneratedBoolColumn('favorito', $tableName, false,
+        defaultValue: Constant(false));
+  }
+
+  final VerificationMeta _dataMeta = const VerificationMeta('data');
+  GeneratedDateTimeColumn _data;
+  @override
+  GeneratedDateTimeColumn get data => _data ??= _constructData();
+  GeneratedDateTimeColumn _constructData() {
+    return GeneratedDateTimeColumn(
+      'data',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _lembreteMeta = const VerificationMeta('lembrete');
+  GeneratedDateTimeColumn _lembrete;
+  @override
+  GeneratedDateTimeColumn get lembrete => _lembrete ??= _constructLembrete();
+  GeneratedDateTimeColumn _constructLembrete() {
+    return GeneratedDateTimeColumn(
+      'lembrete',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _categoriaIdMeta =
+      const VerificationMeta('categoriaId');
+  GeneratedIntColumn _categoriaId;
+  @override
+  GeneratedIntColumn get categoriaId =>
+      _categoriaId ??= _constructCategoriaId();
+  GeneratedIntColumn _constructCategoriaId() {
+    return GeneratedIntColumn(
+      'categoria_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _subcategoriaIdMeta =
+      const VerificationMeta('subcategoriaId');
+  GeneratedIntColumn _subcategoriaId;
+  @override
+  GeneratedIntColumn get subcategoriaId =>
+      _subcategoriaId ??= _constructSubcategoriaId();
+  GeneratedIntColumn _constructSubcategoriaId() {
+    return GeneratedIntColumn(
+      'subcategoria_id',
+      $tableName,
+      true,
+    );
+  }
+
+  final VerificationMeta _contaIdMeta = const VerificationMeta('contaId');
+  GeneratedIntColumn _contaId;
+  @override
+  GeneratedIntColumn get contaId => _contaId ??= _constructContaId();
+  GeneratedIntColumn _constructContaId() {
+    return GeneratedIntColumn(
+      'conta_id',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  GeneratedDateTimeColumn _createdAt;
+  @override
+  GeneratedDateTimeColumn get createdAt => _createdAt ??= _constructCreatedAt();
+  GeneratedDateTimeColumn _constructCreatedAt() {
+    return GeneratedDateTimeColumn(
+      'created_at',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  GeneratedDateTimeColumn _updatedAt;
+  @override
+  GeneratedDateTimeColumn get updatedAt => _updatedAt ??= _constructUpdatedAt();
+  GeneratedDateTimeColumn _constructUpdatedAt() {
+    return GeneratedDateTimeColumn(
+      'updated_at',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        valor,
+        nome,
+        anexo,
+        localizacao,
+        observacao,
+        fixo,
+        recebido,
+        favorito,
+        data,
+        lembrete,
+        categoriaId,
+        subcategoriaId,
+        contaId,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  $ReceitasTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'receitas';
+  @override
+  final String actualTableName = 'receitas';
+  @override
+  VerificationContext validateIntegrity(ReceitasCompanion d,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    if (d.id.present) {
+      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    } else if (id.isRequired && isInserting) {
+      context.missing(_idMeta);
+    }
+    if (d.valor.present) {
+      context.handle(
+          _valorMeta, valor.isAcceptableValue(d.valor.value, _valorMeta));
+    } else if (valor.isRequired && isInserting) {
+      context.missing(_valorMeta);
+    }
+    if (d.nome.present) {
+      context.handle(
+          _nomeMeta, nome.isAcceptableValue(d.nome.value, _nomeMeta));
+    } else if (nome.isRequired && isInserting) {
+      context.missing(_nomeMeta);
+    }
+    if (d.anexo.present) {
+      context.handle(
+          _anexoMeta, anexo.isAcceptableValue(d.anexo.value, _anexoMeta));
+    } else if (anexo.isRequired && isInserting) {
+      context.missing(_anexoMeta);
+    }
+    if (d.localizacao.present) {
+      context.handle(_localizacaoMeta,
+          localizacao.isAcceptableValue(d.localizacao.value, _localizacaoMeta));
+    } else if (localizacao.isRequired && isInserting) {
+      context.missing(_localizacaoMeta);
+    }
+    if (d.observacao.present) {
+      context.handle(_observacaoMeta,
+          observacao.isAcceptableValue(d.observacao.value, _observacaoMeta));
+    } else if (observacao.isRequired && isInserting) {
+      context.missing(_observacaoMeta);
+    }
+    if (d.fixo.present) {
+      context.handle(
+          _fixoMeta, fixo.isAcceptableValue(d.fixo.value, _fixoMeta));
+    } else if (fixo.isRequired && isInserting) {
+      context.missing(_fixoMeta);
+    }
+    if (d.recebido.present) {
+      context.handle(_recebidoMeta,
+          recebido.isAcceptableValue(d.recebido.value, _recebidoMeta));
+    } else if (recebido.isRequired && isInserting) {
+      context.missing(_recebidoMeta);
+    }
+    if (d.favorito.present) {
+      context.handle(_favoritoMeta,
+          favorito.isAcceptableValue(d.favorito.value, _favoritoMeta));
+    } else if (favorito.isRequired && isInserting) {
+      context.missing(_favoritoMeta);
+    }
+    if (d.data.present) {
+      context.handle(
+          _dataMeta, data.isAcceptableValue(d.data.value, _dataMeta));
+    } else if (data.isRequired && isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (d.lembrete.present) {
+      context.handle(_lembreteMeta,
+          lembrete.isAcceptableValue(d.lembrete.value, _lembreteMeta));
+    } else if (lembrete.isRequired && isInserting) {
+      context.missing(_lembreteMeta);
+    }
+    if (d.categoriaId.present) {
+      context.handle(_categoriaIdMeta,
+          categoriaId.isAcceptableValue(d.categoriaId.value, _categoriaIdMeta));
+    } else if (categoriaId.isRequired && isInserting) {
+      context.missing(_categoriaIdMeta);
+    }
+    if (d.subcategoriaId.present) {
+      context.handle(
+          _subcategoriaIdMeta,
+          subcategoriaId.isAcceptableValue(
+              d.subcategoriaId.value, _subcategoriaIdMeta));
+    } else if (subcategoriaId.isRequired && isInserting) {
+      context.missing(_subcategoriaIdMeta);
+    }
+    if (d.contaId.present) {
+      context.handle(_contaIdMeta,
+          contaId.isAcceptableValue(d.contaId.value, _contaIdMeta));
+    } else if (contaId.isRequired && isInserting) {
+      context.missing(_contaIdMeta);
+    }
+    if (d.createdAt.present) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableValue(d.createdAt.value, _createdAtMeta));
+    } else if (createdAt.isRequired && isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (d.updatedAt.present) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableValue(d.updatedAt.value, _updatedAtMeta));
+    } else if (updatedAt.isRequired && isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Receita map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return Receita.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  Map<String, Variable> entityToSql(ReceitasCompanion d) {
+    final map = <String, Variable>{};
+    if (d.id.present) {
+      map['id'] = Variable<int, IntType>(d.id.value);
+    }
+    if (d.valor.present) {
+      map['valor'] = Variable<double, RealType>(d.valor.value);
+    }
+    if (d.nome.present) {
+      map['nome'] = Variable<String, StringType>(d.nome.value);
+    }
+    if (d.anexo.present) {
+      map['anexo'] = Variable<String, StringType>(d.anexo.value);
+    }
+    if (d.localizacao.present) {
+      map['localizacao'] = Variable<String, StringType>(d.localizacao.value);
+    }
+    if (d.observacao.present) {
+      map['observacao'] = Variable<String, StringType>(d.observacao.value);
+    }
+    if (d.fixo.present) {
+      map['fixo'] = Variable<bool, BoolType>(d.fixo.value);
+    }
+    if (d.recebido.present) {
+      map['recebido'] = Variable<bool, BoolType>(d.recebido.value);
+    }
+    if (d.favorito.present) {
+      map['favorito'] = Variable<bool, BoolType>(d.favorito.value);
+    }
+    if (d.data.present) {
+      map['data'] = Variable<DateTime, DateTimeType>(d.data.value);
+    }
+    if (d.lembrete.present) {
+      map['lembrete'] = Variable<DateTime, DateTimeType>(d.lembrete.value);
+    }
+    if (d.categoriaId.present) {
+      map['categoria_id'] = Variable<int, IntType>(d.categoriaId.value);
+    }
+    if (d.subcategoriaId.present) {
+      map['subcategoria_id'] = Variable<int, IntType>(d.subcategoriaId.value);
+    }
+    if (d.contaId.present) {
+      map['conta_id'] = Variable<int, IntType>(d.contaId.value);
+    }
+    if (d.createdAt.present) {
+      map['created_at'] = Variable<DateTime, DateTimeType>(d.createdAt.value);
+    }
+    if (d.updatedAt.present) {
+      map['updated_at'] = Variable<DateTime, DateTimeType>(d.updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  $ReceitasTable createAlias(String alias) {
+    return $ReceitasTable(_db, alias);
   }
 }
 
@@ -2055,6 +2894,8 @@ abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $DespesasTable _despesas;
   $DespesasTable get despesas => _despesas ??= $DespesasTable(this);
+  $ReceitasTable _receitas;
+  $ReceitasTable get receitas => _receitas ??= $ReceitasTable(this);
   $CategoriasTable _categorias;
   $CategoriasTable get categorias => _categorias ??= $CategoriasTable(this);
   $SubcategoriasTable _subcategorias;
@@ -2068,5 +2909,5 @@ abstract class _$Database extends GeneratedDatabase {
   TagDao get tagDao => _tagDao ??= TagDao(this as Database);
   @override
   List<TableInfo> get allTables =>
-      [despesas, categorias, subcategorias, contas, tags];
+      [despesas, receitas, categorias, subcategorias, contas, tags];
 }

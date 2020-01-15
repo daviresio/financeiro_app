@@ -1,6 +1,8 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:financeiro_app/blocs/bloc_initial_page.dart';
 import 'package:financeiro_app/blocs/bloc_transacoes.dart';
 import 'package:financeiro_app/pages/despesa/despesa_page.dart';
+import 'package:financeiro_app/pages/receita/receita_page.dart';
 import 'package:financeiro_app/pages/transacoes/transacoes_page.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +14,7 @@ class FloatButton extends StatefulWidget {
 class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStateMixin {
 
   final TransacoesPageBloc _transacoesBloc = BlocProvider.getBloc<TransacoesPageBloc>();
+  final InitlalPageBloc _initialBloc = BlocProvider.getBloc<InitlalPageBloc>();
 
   Animation<double> _animation;
   AnimationController _controller;
@@ -72,46 +75,54 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
         Positioned(
           bottom: 60.0,
           right: 10.0,
-          child: StreamBuilder<String>(
-              stream: _transacoesBloc.tipoTransacaoSelecionada,
-              initialData: TransacoesConstantes.transacoes,
-            builder: (context, snapshot) {
-              return Container(
-                height: 50.0,
-                width: 50.0,
-                decoration: BoxDecoration(
-                  color: TransacoesConstantes.transacoesColor[snapshot.data],
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    customBorder: CircleBorder(),
-                    onTap: () {
-                      if(_active) {
-                        _deactiveWidget();
-                      } else {
-                       _activeWidget();
-                      }
-                    },
-                    child: AnimatedBuilder(
-                      animation: _animation,
-                      child: Icon(Icons.add, color: Colors.white,),
-                      builder: (BuildContext context, Widget child) {
-                        return Transform.rotate(
-                          angle: _animation.value * 0.9,
-                          child: child,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              );
-            }
+          child: StreamBuilder<int>(
+              stream: _initialBloc.currentPageIndex,
+              initialData: 0,
+              builder: (context, pageSnapshot) {
+                return StreamBuilder<String>(
+                    stream: _transacoesBloc.tipoTransacaoSelecionada,
+                    initialData: TransacoesConstantes.transacoes,
+                    builder: (context, snapshot) {
+                      return Container(
+                        height: 50.0,
+                        width: 50.0,
+                        decoration: BoxDecoration(
+                          color: (pageSnapshot.data != 1 ? Colors.blueAccent : TransacoesConstantes.transacoesColor[snapshot.data]),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            customBorder: CircleBorder(),
+                            onTap: () {
+                              if (_active) {
+                                _deactiveWidget();
+                              } else {
+                                _activeWidget();
+                              }
+                            },
+                            child: AnimatedBuilder(
+                              animation: _animation,
+                              child: Icon(Icons.add, color: Colors.white,),
+                              builder: (BuildContext context, Widget child) {
+                                return Transform.rotate(
+                                  angle: _animation.value * 0.9,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                );
+              }
           ),
         ),
         (_active ? _getTouch(28.0, 97.0, () {}): Container()),
-        (_active ? _getTouch(110.0, 120.0, () {}): Container()),
+        (_active ? _getTouch(110.0, 120.0, () {
+          Navigator.of(context).pushNamed(ReceitaPage.routeName);
+        }): Container()),
         (_active ? _getTouch(215.0, 97.0, () {}): Container()),
         (_active ? _getTouch(285, 35.0, () {
           Navigator.of(context).pushNamed(DespesaPage.routeName);
@@ -119,7 +130,6 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
       ],
     );
   }
-
   _getTouch(double bottom, double right, Function onTap) {
 
     return Positioned(

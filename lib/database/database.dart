@@ -4,22 +4,44 @@ import 'package:moor_flutter/moor_flutter.dart';
 import 'dao/categoria_dao.dart';
 import 'dao/conta_dao.dart';
 import 'dao/despesa_dao.dart';
+import 'dao/receita_dao.dart';
 import 'dao/subcategoria_dao.dart';
 
 part 'database.g.dart';
 
 class Despesas extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get nome => text()();
-  TextColumn get anexo => text()();
-  TextColumn get localizacao => text()();
-  TextColumn get observacao => text()();
-  BoolColumn get despesaFixa => boolean().withDefault(Constant(false))();
+  RealColumn get valor => real()();
+  TextColumn get nome => text().nullable()();
+  TextColumn get anexo => text().nullable()();
+  TextColumn get localizacao => text().nullable()();
+  TextColumn get observacao => text().nullable()();
+  BoolColumn get fixo => boolean().withDefault(Constant(false))();
   BoolColumn get pago => boolean().withDefault(Constant(false))();
   BoolColumn get favorito => boolean().withDefault(Constant(false))();
   DateTimeColumn get data => dateTime()();
-  DateTimeColumn get lembrete => dateTime()();
+  DateTimeColumn get lembrete => dateTime().nullable()();
   IntColumn get categoriaId => integer().named('categoria_id')();
+  IntColumn get subcategoriaId => integer().nullable().named('subcategoria_id')();
+  IntColumn get contaId => integer().named('conta_id')();
+  DateTimeColumn get createdAt => dateTime().named('created_at')();
+  DateTimeColumn get updatedAt => dateTime().named('updated_at')();
+}
+
+class Receitas extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  RealColumn get valor => real()();
+  TextColumn get nome => text().nullable()();
+  TextColumn get anexo => text().nullable()();
+  TextColumn get localizacao => text().nullable()();
+  TextColumn get observacao => text().nullable()();
+  BoolColumn get fixo => boolean().withDefault(Constant(false))();
+  BoolColumn get recebido => boolean().withDefault(Constant(false))();
+  BoolColumn get favorito => boolean().withDefault(Constant(false))();
+  DateTimeColumn get data => dateTime()();
+  DateTimeColumn get lembrete => dateTime().nullable()();
+  IntColumn get categoriaId => integer().named('categoria_id')();
+  IntColumn get subcategoriaId => integer().nullable().named('subcategoria_id')();
   IntColumn get contaId => integer().named('conta_id')();
   DateTimeColumn get createdAt => dateTime().named('created_at')();
   DateTimeColumn get updatedAt => dateTime().named('updated_at')();
@@ -63,7 +85,7 @@ class Tags extends Table {
 }
 
 
-@UseMoor(tables: [Despesas, Categorias, Subcategorias, Contas, Tags], daos: [TagDao])
+@UseMoor(tables: [Despesas, Receitas, Categorias, Subcategorias, Contas, Tags], daos: [TagDao])
 class Database extends _$Database {
   static Database instance = Database._internal();
 
@@ -71,6 +93,7 @@ class Database extends _$Database {
   SubcategoriaDao subcategoriaDao;
   ContaDao contaDao;
   DespesaDao despesaDao;
+  ReceitaDao receitaDao;
   TagDao tagDao;
 
   Database._internal() : super(FlutterQueryExecutor.inDatabaseFolder(path: 'db.sqlite', logStatements: true)..doWhenOpened((e) => e.runCustom('PRAGMA foreign_keys = ON'))) {
@@ -78,6 +101,7 @@ class Database extends _$Database {
     subcategoriaDao = SubcategoriaDao(this);
     contaDao = ContaDao(this);
     despesaDao = DespesaDao(this);
+    receitaDao = ReceitaDao(this);
     tagDao = TagDao(this);
   }
 

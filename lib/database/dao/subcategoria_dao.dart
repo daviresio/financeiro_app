@@ -9,6 +9,8 @@ class SubcategoriaDao extends DatabaseAccessor<Database> with _$SubcategoriaDaoM
 
   SubcategoriaDao(this.db) : super(db);
 
+  Future<Subcategoria> find(int id) => (select(subcategorias)..where((t) => t.id.equals(id))).getSingle();
+
   Stream<List<Subcategoria>> listSubcategorias() => select(subcategorias).watch();
 
   Future insertSubcategoria(Subcategoria subcategoria) => into(subcategorias).insert(subcategoria.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now()));

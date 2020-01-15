@@ -1,31 +1,29 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:financeiro_app/blocs/bloc_calculadora.dart';
-import 'package:financeiro_app/blocs/bloc_despesa.dart';
-import 'package:financeiro_app/database/database.dart';
-import 'package:financeiro_app/pages/despesa/widgets//calendar_form_field.dart';
+import 'package:financeiro_app/blocs/bloc_receita.dart';
+import 'package:financeiro_app/pages/despesa/widgets/calendar_form_field.dart';
 import 'package:financeiro_app/pages/despesa/widgets/categoria_select.dart';
 import 'package:financeiro_app/pages/despesa/widgets/conta_select.dart';
+import 'package:financeiro_app/pages/despesa/widgets/form_item.dart';
 import 'package:financeiro_app/util/constantes_util.dart';
-import 'package:financeiro_app/util/util.dart';
 import 'package:financeiro_app/widgets/calculadora/calculadora.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:financeiro_app/database/database.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'widgets/form_item.dart';
+class ReceitaPage extends StatefulWidget {
 
-class DespesaPage extends StatefulWidget {
-
-  static const routeName = '/despesa';
+  static const routeName = '/receita';
 
   @override
-  _DespesaPageState createState() => _DespesaPageState();
+  _ReceitaPageState createState() => _ReceitaPageState();
 }
 
-class _DespesaPageState extends State<DespesaPage> {
+class _ReceitaPageState extends State<ReceitaPage> {
+
   final _formKey = GlobalKey();
 
-  var _despesa = Despesa().copyWith(pago: true, favorito: false, categoriaId: 1, contaId: 1);
+  var _receita = Receita().copyWith(recebido: true, favorito: false, categoriaId: 1, contaId: 1);
 
   Categoria _categoriaSelecionada;
   Subcategoria _subcategoriaSelecionada;
@@ -34,134 +32,84 @@ class _DespesaPageState extends State<DespesaPage> {
   bool _exibirFormularioCompleto = false;
 
   CalculadoraBloc _blocCalculadora = BlocProvider.getBloc<CalculadoraBloc>();
-  DespesaBloc _blocDespesa = BlocProvider.getBloc<DespesaBloc>();
+  ReceitaBloc _blocReceita = BlocProvider.getBloc<ReceitaBloc>();
 
   var _db = Database.instance;
 
   TextEditingController _descricaoController = TextEditingController();
 
+
   @override
   void initState() {
-
     if(_categoriaSelecionada == null) {
       _defineCategoria();
     }
+
     if(_contaSelecionada == null) {
       _defineConta();
     }
-
+    
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-
+     
       int id = ModalRoute.of(context).settings.arguments;
-
+      
       if(id == null) {
-        _blocDespesa.alteraData(DateTime.now());
+        _blocReceita.alteraData(DateTime.now());
         await Future.delayed(Duration(milliseconds: 300));
         _abreCalculadora();
       } else {
-        var v = await _db.despesaDao.find(id);
+        var v = await _db.receitaDao.find(id);
         _descricaoController.text = v.nome;
-       _blocDespesa.alteraData(v.data);
-       _blocDespesa.alteraValor(v.valor.toString());
+        _blocReceita.alteraData(v.data);
+        _blocReceita.alteraValor(v.valor.toString());
         setState(() {
-          _despesa = v;
+          _receita = v;
           _defineCategoria();
           _defineConta();
         });
       }
-
+          
     });
 
   }
-
-
+  
   _abreCalculadora() async {
     _blocCalculadora.reiniciar();
-    var v = await showCalculadora(context, Colors.redAccent);
+    var v = await showCalculadora(context, Colors.green);
     if(v != null) {
-      _blocDespesa.alteraValor(v.toString());
+      _blocReceita.alteraValor(v.toString());
       setState(() {
-        _despesa = _despesa.copyWith(valor: v);
+        _receita = _receita.copyWith(valor: v);
       });
     }
+    
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () async {
-        double media = await _db.despesaDao.getMediaValorPorCategoria(_despesa.categoriaId);
-        DateTime data = _blocDespesa.data.value;
-        _despesa = _despesa.copyWith(nome: _descricaoController.text, data: data);
-        if(_despesa.id == null || _despesa.id == 0) {
-          await _db.despesaDao.insertDespesa(_despesa);
-        } else {
-          await _db.despesaDao.updateDespesa(_despesa);
-        }
 
-        if(_despesa.valor > media && media > 0) {
-          await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text('Voce pode economizar', style: TextStyle(fontSize: 16.0, color: Colors.black54, fontWeight: FontWeight.bold),),
-                  content: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text('${_subcategoriaSelecionada != null ? _categoriaSelecionada.nome : _categoriaSelecionada.nome} - ${formatDateDayMonthYear(_despesa.data)}', style: TextStyle(),),
-                          Text('R\$ ${_despesa.valor}', style: TextStyle(color: Colors.redAccent),),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text('Media dessa despesa', style: TextStyle(color: Colors.orange),),
-                          Text('R\$ $media', style: TextStyle(color: Colors.orange),),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text('Aumento em valor', style: TextStyle(color: Colors.blueAccent),),
-                          Text('R\$ ${_despesa.valor - media}', style: TextStyle(color: Colors.blueAccent),),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text('Aumento em porcentagem', style: TextStyle(color: Colors.green,),),
-                          Text('% ', style: TextStyle(color: Colors.green,),),
-                        ],
-                      ),
-                      Divider(height: 1.0, color: Colors.black54,),
-                      SizedBox(height: 20.0,),
-                      CheckboxListTile(value: true, onChanged: (v) {}, title: Text('Analise inteligente ativada'), selected: true, activeColor: Colors.redAccent,),
-                    ],
-                  ),
-                  actions: <Widget>[
-                    FlatButton(onPressed: () {
-                      Navigator.of(context).pop();
-                    }, child: Text('ENTENDI', style: TextStyle(color: Colors.redAccent),)),
-                  ],
-                );
-              }
-          );
+        DateTime data = _blocReceita.data.value;
+        _receita = _receita.copyWith(nome: _descricaoController.text, data: data);
+        if(_receita.id == null || _receita.id == 0) {
+          await _db.receitaDao.add(_receita);
+        } else {
+          await _db.receitaDao.updat(_receita);
         }
 
         Navigator.of(context).pop();
 
       },
         child: Icon(Icons.check),
-        backgroundColor: Colors.redAccent,),
+        backgroundColor: Colors.green,),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              backgroundColor: Colors.redAccent,
-              title: Text('Nova despesa', style: TextStyle(fontWeight: FontWeight.bold),),
+              backgroundColor: Colors.green,
+              title: Text('Nova receita', style: TextStyle(fontWeight: FontWeight.bold),),
               floating: true,
               pinned: true,
               bottom: PreferredSize(
@@ -173,8 +121,8 @@ class _DespesaPageState extends State<DespesaPage> {
                     children: <Widget>[
                       Expanded(
                         child: InkWell(
-                          splashColor: Colors.red,
-                          highlightColor: Colors.red.withOpacity(0.4),
+                          splashColor: Colors.green,
+                          highlightColor: Colors.green.withOpacity(0.4),
                           onTap: () {
                             _abreCalculadora();
                           },
@@ -183,16 +131,16 @@ class _DespesaPageState extends State<DespesaPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text('Valor da despesa', style: TextStyle(color: Colors.white),),
+                                Text('Valor da receita', style: TextStyle(color: Colors.white),),
                                 Row(
                                   children: <Widget>[
                                     SizedBox(width: 20.0,),
                                     StreamBuilder<String>(
-                                      stream: _blocDespesa.valor,
-                                      initialData: '0.0',
-                                      builder: (context, snapshot) {
-                                        return Text('R\$ ${snapshot.data}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.0),);
-                                      }
+                                        stream: _blocReceita.valor,
+                                        initialData: '0.0',
+                                        builder: (context, snapshot) {
+                                          return Text('R\$ ${snapshot.data}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22.0),);
+                                        }
                                     ),
                                   ],
                                 ),
@@ -215,7 +163,7 @@ class _DespesaPageState extends State<DespesaPage> {
           ];
         },
         body: Container(
-          color: Colors.redAccent,
+          color: Colors.green,
           padding: EdgeInsets.only(top: 8.0),
           child: Form(
             key: _formKey,
@@ -227,8 +175,8 @@ class _DespesaPageState extends State<DespesaPage> {
               ),
               child: ListView(
                 children: <Widget>[
-                  FormItem(Icons.check_circle_outline, Text((_despesa.pago ? 'Pago' : 'Nao foi pago')), Switch(activeColor: Colors.redAccent, value: _despesa.pago, onChanged: (v) => setState(()=> _despesa = _despesa.copyWith(pago: v)),), () => setState(()=> _despesa = _despesa.copyWith(pago: !_despesa.pago))),
-                  CalendarFormField(Colors.redAccent, _blocDespesa),
+                  FormItem(Icons.check_circle_outline, Text((_receita.recebido ? 'Pago' : 'Nao foi pago')), Switch(activeColor: Colors.green, value: _receita.recebido, onChanged: (v) => setState(()=> _receita = _receita.copyWith(recebido: v)),), () => setState(()=> _receita = _receita.copyWith(recebido: !_receita.recebido))),
+                  CalendarFormField(Colors.green, _blocReceita),
                   FormItem(Icons.textsms, Container(width: 250, height: 25.0, padding: EdgeInsets.only(top: 10.0), child:
                   TextFormField(
                     controller: _descricaoController,
@@ -237,7 +185,7 @@ class _DespesaPageState extends State<DespesaPage> {
                         hintText: 'Descricao'
                     ),
                   )
-                  ), GestureDetector(child: (_despesa.favorito ? Icon(Icons.favorite, color: Colors.redAccent,) : Icon(Icons.favorite_border, color: Colors.black54,)), onTap: () => setState(() => _despesa = _despesa.copyWith(favorito: !_despesa.favorito))), () {}),
+                  ), GestureDetector(child: (_receita.favorito ? Icon(Icons.favorite, color: Colors.green,) : Icon(Icons.favorite_border, color: Colors.black54,)), onTap: () => setState(() => _receita = _receita.copyWith(favorito: !_receita.favorito))), () {}),
                   FormItem(Icons.bookmark_border, Container(
                     padding: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 12.0, right: 12.0),
                     decoration: _categoriaSelecionada != null ? BoxDecoration(
@@ -252,21 +200,21 @@ class _DespesaPageState extends State<DespesaPage> {
                       ],
                     ),
                   ), Icon(Icons.keyboard_arrow_right, color: Colors.black54,), () async {
-                    dynamic result = await showCategoriaSelect(context, _despesa.categoriaId);
+                    dynamic result = await showCategoriaSelect(context, _receita.categoriaId);
                     if(result != null) {
                       if (result is Function) {
                         var novaCategoria = await result(context);
                         print(novaCategoria);
                         if (novaCategoria != null) {
                           setState(() {
-                            _despesa =
-                                _despesa.copyWith(categoriaId: novaCategoria);
+                            _receita =
+                                _receita.copyWith(categoriaId: novaCategoria);
                             _defineCategoria();
                           });
                         }
                       } else if (result is int) {
                         setState(() {
-                          _despesa = _despesa.copyWith(categoriaId: result);
+                          _receita = _receita.copyWith(categoriaId: result);
                           _defineCategoria();
                         });
                       }
@@ -286,26 +234,26 @@ class _DespesaPageState extends State<DespesaPage> {
                       ],
                     ),
                   ), Icon(Icons.keyboard_arrow_right, color: Colors.black54,), () async {
-                    int contaId = await showContaSelect(context, _despesa.contaId);
+                    int contaId = await showContaSelect(context, _receita.contaId);
                     if(contaId != null) {
                       setState(() {
-                        _despesa =
-                            _despesa.copyWith(contaId: contaId);
+                        _receita =
+                            _receita.copyWith(contaId: contaId);
                         _defineConta();
                       });
                     }
                   }),
                   (_exibirFormularioCompleto ? Column(
-                    children: <Widget> [
-                    FormItem(Icons.attach_file, Container(), Container(), () {}),
-                    FormItem(Icons.location_on, Container(), Container(), () {}),
-                    FormItem(Icons.gps_not_fixed, Container(), Container(), () {}),
-                    FormItem(Icons.autorenew, Container(), Container(), () {}),
-                    FormItem(Icons.edit, Container(), Container(), () {}),
-                    FormItem(Icons.label_outline, Container(), Container(), () {}),
-                    FormItem(Icons.alarm, Container(), Container(), () {}),
-                      SizedBox(height: 60.0,)
-                  ])
+                      children: <Widget> [
+                        FormItem(Icons.attach_file, Container(), Container(), () {}),
+                        FormItem(Icons.location_on, Container(), Container(), () {}),
+                        FormItem(Icons.gps_not_fixed, Container(), Container(), () {}),
+                        FormItem(Icons.autorenew, Container(), Container(), () {}),
+                        FormItem(Icons.edit, Container(), Container(), () {}),
+                        FormItem(Icons.label_outline, Container(), Container(), () {}),
+                        FormItem(Icons.alarm, Container(), Container(), () {}),
+                        SizedBox(height: 60.0,)
+                      ])
                       : Container(
                     margin: EdgeInsets.only(top: 15.0),
                     child: FlatButton(
@@ -314,8 +262,8 @@ class _DespesaPageState extends State<DespesaPage> {
                           _exibirFormularioCompleto = true;
                         });
                       },
-                      highlightColor: Colors.redAccent.withOpacity(0.2),
-                      child: Text('MAIS DETALHES', style: TextStyle(color: Colors.redAccent),),
+                      highlightColor: Colors.green.withOpacity(0.2),
+                      child: Text('MAIS DETALHES', style: TextStyle(color: Colors.green),),
                     ),
                   ))
                 ],
@@ -328,9 +276,9 @@ class _DespesaPageState extends State<DespesaPage> {
   }
 
   void _defineCategoria() {
-    _db.categoriaDao.find(_despesa.categoriaId).then((onValue) {
-      if(_despesa.subcategoriaId != null) {
-        _db.subcategoriaDao.find(_despesa.subcategoriaId).then((onValue2) {
+    _db.categoriaDao.find(_receita.categoriaId).then((onValue) {
+      if(_receita.subcategoriaId != null) {
+        _db.subcategoriaDao.find(_receita.subcategoriaId).then((onValue2) {
           setState(() {
             _subcategoriaSelecionada = onValue2;
           });
@@ -343,11 +291,11 @@ class _DespesaPageState extends State<DespesaPage> {
   }
 
   void _defineConta() {
-    _db.contaDao.find(_despesa.contaId).then((onValue) {
+    _db.contaDao.find(_receita.contaId).then((onValue) {
       setState(() {
         _contaSelecionada = onValue;
       });
     });
   }
-
+  
 }

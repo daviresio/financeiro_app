@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'despesa_dao.dart';
+part of 'receita_dao.dart';
 
 // **************************************************************************
 // DaoGenerator
 // **************************************************************************
 
-mixin _$DespesaDaoMixin on DatabaseAccessor<Database> {
-  $DespesasTable get despesas => db.despesas;
+mixin _$ReceitaDaoMixin on DatabaseAccessor<Database> {
+  $ReceitasTable get receitas => db.receitas;
   $CategoriasTable get categorias => db.categorias;
   $ContasTable get contas => db.contas;
 }

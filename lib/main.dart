@@ -1,12 +1,15 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:financeiro_app/blocs/bloc_calculadora.dart';
+import 'package:financeiro_app/blocs/bloc_despesa.dart';
 import 'package:financeiro_app/blocs/bloc_home.dart';
 import 'package:financeiro_app/blocs/bloc_categoria.dart';
+import 'package:financeiro_app/blocs/bloc_receita.dart';
 import 'package:financeiro_app/blocs/bloc_transacoes.dart';
 import 'package:financeiro_app/pages/despesa/despesa_page.dart';
 import 'package:financeiro_app/pages/home/home_page.dart';
 import 'package:financeiro_app/pages/initial_page.dart';
 import 'package:financeiro_app/pages/planejamento/planejamento_page.dart';
+import 'package:financeiro_app/pages/receita/receita_page.dart';
 import 'package:financeiro_app/pages/transacoes/transacoes_page.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +31,8 @@ class MyApp extends StatelessWidget {
         Bloc((i) => NovaCategoriaBloc()),
         Bloc((i) => ListaCategoriaBloc()),
         Bloc((i) => CalculadoraBloc()),
+        Bloc((i) => DespesaBloc()),
+        Bloc((i) => ReceitaBloc()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -43,6 +48,7 @@ class MyApp extends StatelessWidget {
           TransacoesPage.routeName: (context) => TransacoesPage(),
           PlanejamentoPage.routeName: (context) => PlanejamentoPage(),
           DespesaPage.routeName: (context) => DespesaPage(),
+          ReceitaPage.routeName: (context) => ReceitaPage(),
         },
       ),
     );

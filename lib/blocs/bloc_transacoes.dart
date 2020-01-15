@@ -1,4 +1,6 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:financeiro_app/database/joins/despesa_joins.dart';
+import 'package:financeiro_app/database/joins/receita_joins.dart';
 import 'package:financeiro_app/pages/transacoes/transacoes_page.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -7,8 +9,6 @@ class TransacoesPageBloc extends BlocBase {
   var _exibirTipoTransacao = BehaviorSubject<String>.seeded(TransacoesConstantes.transacoes);
   get tipoTransacaoSelecionada => _exibirTipoTransacao.stream;
   void alterarTransacaoSelecionada(String tipo) => _exibirTipoTransacao.sink.add(tipo);
-
-
 
   var _mesSelecionado = BehaviorSubject<DateTime>.seeded(DateTime.now());
   get mesSelecionado => _mesSelecionado.stream;
@@ -23,25 +23,21 @@ class TransacoesPageBloc extends BlocBase {
     _mesSelecionado.sink.add(DateTime(d.year, d.month - 1, d.day));
   }
 
+  var _despesaSelecionada = BehaviorSubject<DespesaComRelacionamentos>.seeded(null);
+  get despesaSelecionada => _despesaSelecionada.stream;
+  void selecionaDespesa(DespesaComRelacionamentos d) => _despesaSelecionada.sink.add(d);
+  void removeDespesaSelecionada() => _despesaSelecionada.sink.add(null);
 
+  var _receitaSelecionada = BehaviorSubject<ReceitaComRelacionamentos>.seeded(null);
+  get receitaSelecionada => _receitaSelecionada.stream;
+  void selecionaReceita(ReceitaComRelacionamentos d) => _receitaSelecionada.sink.add(d);
+  void removeReceitaSelecionada() => _receitaSelecionada.sink.add(null);
 
   var _transacoesSaldoPrevisto = BehaviorSubject<double>.seeded(0.0);
   get transacoesSaldoPrevisto => _transacoesSaldoPrevisto.stream;
 
   var _transacoesBalancoMensal = BehaviorSubject<double>.seeded(0.0);
   get transacoesBalancoMensal => _transacoesBalancoMensal.stream;
-
-  var _despesasTotalPendente = BehaviorSubject<double>.seeded(0.0);
-  get despesasTotalPendente => _despesasTotalPendente.stream;
-
-  var _despesasTotalPago = BehaviorSubject<double>.seeded(0.0);
-  get despesasTotalPago => _despesasTotalPago.stream;
-
-  var _receitasTotalPendente = BehaviorSubject<double>.seeded(0.0);
-  get receitasTotalPendente => _receitasTotalPendente.stream;
-
-  var _receitasTotalRecebido = BehaviorSubject<double>.seeded(0.0);
-  get receitasTotalRecebido => _receitasTotalRecebido.stream;
 
 
   @override
@@ -50,10 +46,7 @@ class TransacoesPageBloc extends BlocBase {
     _mesSelecionado.close();
     _transacoesSaldoPrevisto.close();
     _transacoesBalancoMensal.close();
-    _despesasTotalPendente.close();
-    _despesasTotalPago.close();
-    _receitasTotalPendente.close();
-    _receitasTotalRecebido.close();
+    _despesaSelecionada.close();
 
   }
 }

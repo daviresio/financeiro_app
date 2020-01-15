@@ -1,5 +1,4 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
-import 'package:financeiro_app/pages/planejamento/planejamento_page.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NovaCategoriaBloc extends BlocBase {
