@@ -1,4 +1,5 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:financeiro_app/database/database.dart';
 import 'package:financeiro_app/database/joins/despesa_joins.dart';
 import 'package:financeiro_app/database/joins/receita_joins.dart';
 import 'package:financeiro_app/pages/transacoes/transacoes_page.dart';
@@ -34,10 +35,28 @@ class TransacoesPageBloc extends BlocBase {
   void removeReceitaSelecionada() => _receitaSelecionada.sink.add(null);
 
   var _transacoesSaldoPrevisto = BehaviorSubject<double>.seeded(0.0);
-  get transacoesSaldoPrevisto => _transacoesSaldoPrevisto.stream;
+  Stream<double> transacoesSaldoPrevisto() {
+    Database.instance.receitaDao.list().listen((receitas) {
+      Database.instance.despesaDao.list().listen((despesas) {
+        double d = despesas.length == 0 ? 0.0 : despesas.map((v) => v.valor).reduce((a, b) => a + b);
+        double r = receitas.length == 0 ? 0.0 : receitas.map((v) => v.valor).reduce((a, b) => a + b);
+        _transacoesSaldoPrevisto.sink.add(r - d);
+      });
+    });
+    return _transacoesSaldoPrevisto.stream;
+  }
 
   var _transacoesBalancoMensal = BehaviorSubject<double>.seeded(0.0);
-  get transacoesBalancoMensal => _transacoesBalancoMensal.stream;
+  Stream<double> transacoesBalancoMensal(DateTime d) {
+    Database.instance.receitaDao.listByDate(d).listen((receitas) {
+      Database.instance.despesaDao.listByDate(d).listen((despesas) {
+        double d = despesas.length == 0 ? 0.0 : despesas.map((v) => v.valor).reduce((a, b) => a + b);
+        double r = receitas.length == 0 ? 0.0 : receitas.map((v) => v.valor).reduce((a, b) => a + b);
+        _transacoesBalancoMensal.sink.add(r - d);
+      });
+    });
+    return _transacoesBalancoMensal.stream;
+  }
 
 
   @override

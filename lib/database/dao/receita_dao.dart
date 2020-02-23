@@ -16,6 +16,8 @@ class ReceitaDao extends DatabaseAccessor<Database> with _$ReceitaDaoMixin {
 
   Stream<List<Receita>> list() => select(receitas).watch();
 
+  Stream<List<Receita>> listByDate(DateTime d) => (select(receitas)..where((t) => t.data.year.equals(d.year) & t.data.month.equals(d.month))).watch();
+
   Future add(Receita receita) => into(receitas).insert(receita.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now()));
 
   Future updat(Receita receita) => update(receitas).replace(receita.copyWith(updatedAt: DateTime.now()));

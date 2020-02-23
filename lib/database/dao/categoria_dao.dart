@@ -13,7 +13,11 @@ class CategoriaDao extends DatabaseAccessor<Database> with _$CategoriaDaoMixin {
 
   Stream<List<Categoria>> listCategorias() => select(categorias).watch();
 
-  Stream<List<Categoria>> search(String v) => (select(categorias)..where((t) => t.nome.like('%$v%'))).watch();
+  Stream<List<Categoria>> listCategoriasDespesas() => (select(categorias)..where((t) => t.tipo.equals('despesa'))).watch();
+
+  Stream<List<Categoria>> listCategoriasReceitas() => (select(categorias)..where((t) => t.tipo.equals('receita'))).watch();
+
+  Stream<List<Categoria>> search(String v, String tipo) => (select(categorias)..where((t) => t.nome.like('%$v%') & t.tipo.equals(tipo))).watch();
 
   Future insertCategoria(Categoria categoria) => into(categorias).insert(categoria.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now()));
 

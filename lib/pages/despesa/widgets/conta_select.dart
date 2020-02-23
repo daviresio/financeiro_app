@@ -1,5 +1,6 @@
 import 'package:financeiro_app/database/dao/conta_dao.dart';
 import 'package:financeiro_app/database/database.dart';
+import 'package:financeiro_app/pages/transacoes/pages/gerenciar_contas_page.dart';
 import 'package:financeiro_app/util/constantes_util.dart';
 import 'package:financeiro_app/widgets/bottom_sheet/rounded_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
                              if(index == 0) {
                               return ListTile(
                                   contentPadding: EdgeInsets.all(6.0),
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.pushNamed(context, GerenciarContasPage.routeName);
+                                  },
                                   leading: Container(
                                       padding: EdgeInsets.all(10.0),
                                       decoration: BoxDecoration(

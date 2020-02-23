@@ -45,7 +45,11 @@ class TransacoesPage extends StatelessWidget {
             stream: _transacoesBloc.despesaSelecionada,
             initialData: null,
             builder: (context, despesa) {
-              return Stack(
+              return StreamBuilder(
+                  stream: _transacoesBloc.mesSelecionado,
+                  initialData: DateTime.now(),
+                  builder: (context, mesSnapshot) {
+                    return Stack(
                 children: <Widget>[
                   NestedScrollView(
                     headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -71,13 +75,8 @@ class TransacoesPage extends StatelessWidget {
                                         children: <Widget>[
                                           IconButton(icon: Icon(Icons.keyboard_arrow_left, color: Colors.white,), onPressed: _transacoesBloc.voltarMes,),
                                           SizedBox(width: 20.0,),
-                                          StreamBuilder(
-                                              stream: _transacoesBloc.mesSelecionado,
-                                              initialData: DateTime.now(),
-                                              builder: (context, snapshot) {
-                                                return Text('${getMonth(snapshot.data.month)} ${(snapshot.data.year == DateTime.now().year ? '' : snapshot.data.year)}',
-                                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),);
-                                              }),
+                                          Text('${getMonth(mesSnapshot.data.month)} ${(mesSnapshot.data.year == DateTime.now().year ? '' : mesSnapshot.data.year)}',
+                                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                                           SizedBox(width: 20.0,),
                                           IconButton(icon: Icon(Icons.keyboard_arrow_right, color: Colors.white,), onPressed: _transacoesBloc.avancarMes,),
                                         ],
@@ -93,7 +92,7 @@ class TransacoesPage extends StatelessWidget {
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.all(16.0),
-                                            child: _getTopValues(),
+                                            child: _getTopValues(mesSnapshot.data),
                                           ),
                                         ),
                                       ),
@@ -222,6 +221,8 @@ class TransacoesPage extends StatelessWidget {
                   )
                   ),
                 ],
+                    );
+                  }
               );
             }
           );
@@ -277,7 +278,8 @@ class TransacoesPage extends StatelessWidget {
 
 
 
-  Widget _getTopValues() {
+  Widget _getTopValues(DateTime d) {
+
     return StreamBuilder(
       stream: _transacoesBloc.tipoTransacaoSelecionada,
       initialData: TransacoesConstantes.transacoes,
@@ -294,12 +296,12 @@ class TransacoesPage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text('Saldo previsto', style: TextStyle(color: Colors.black54),),
+                        Text((d.month == DateTime.now().month && d.year == DateTime.now().year) ? 'Saldo Atual' : 'Saldo previsto', style: TextStyle(color: Colors.black54),),
                         StreamBuilder<double>(
-                            stream: _transacoesBloc.transacoesSaldoPrevisto,
+                            stream: _transacoesBloc.transacoesSaldoPrevisto(),
                             initialData: 0.0,
-                            builder: (context, snapshot) {
-                              return Text('R\$ ${snapshot.data}', style: TextStyle(fontSize: 15.0, color: (snapshot.data < 0.0 ? Colors.redAccent : Colors.green), fontWeight: FontWeight.bold),);
+                            builder: (context, saldoPrevistoSnapshot) {
+                              return Text('R\$ ${saldoPrevistoSnapshot.data}', style: TextStyle(fontSize: 15.0, color: (saldoPrevistoSnapshot.data < 0.0 ? Colors.redAccent : Colors.green), fontWeight: FontWeight.bold),);
                             }
                         ),
                       ],
@@ -315,10 +317,10 @@ class TransacoesPage extends StatelessWidget {
                       children: <Widget>[
                         Text('Balanco mensal', style: TextStyle(color: Colors.black54),),
                         StreamBuilder<double>(
-                            stream: _transacoesBloc.transacoesBalancoMensal,
+                            stream: _transacoesBloc.transacoesBalancoMensal(d),
                             initialData: 0.0,
-                            builder: (context, snapshot) {
-                              return Text('R\$ ${snapshot.data}', style: TextStyle(fontSize: 15.0, color: (snapshot.data < 0.0 ? Colors.redAccent : Colors.green), fontWeight: FontWeight.bold),);
+                            builder: (context, balancoMensalSnapshot) {
+                              return Text('R\$ ${balancoMensalSnapshot.data}', style: TextStyle(fontSize: 15.0, color: (balancoMensalSnapshot.data < 0.0 ? Colors.redAccent : Colors.green), fontWeight: FontWeight.bold),);
                             }
                         ),
                       ],

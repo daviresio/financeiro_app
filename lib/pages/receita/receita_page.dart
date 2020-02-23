@@ -23,7 +23,7 @@ class _ReceitaPageState extends State<ReceitaPage> {
 
   final _formKey = GlobalKey();
 
-  var _receita = Receita().copyWith(recebido: true, favorito: false, categoriaId: 1, contaId: 1);
+  var _receita = Receita().copyWith(recebido: true, favorito: false, contaId: 1);
 
   Categoria _categoriaSelecionada;
   Subcategoria _subcategoriaSelecionada;
@@ -55,6 +55,13 @@ class _ReceitaPageState extends State<ReceitaPage> {
       
       if(id == null) {
         _blocReceita.alteraData(DateTime.now());
+        await _db.categoriaDao.listCategoriasReceitas().listen((onData) {
+          var id = onData[0]?.id;
+          setState(() {
+            _receita = _receita.copyWith(categoriaId: id ?? 0);
+            _defineCategoria();
+          });
+        });
         await Future.delayed(Duration(milliseconds: 300));
         _abreCalculadora();
       } else {
@@ -185,7 +192,7 @@ class _ReceitaPageState extends State<ReceitaPage> {
                         hintText: 'Descricao'
                     ),
                   )
-                  ), GestureDetector(child: (_receita.favorito ? Icon(Icons.favorite, color: Colors.green,) : Icon(Icons.favorite_border, color: Colors.black54,)), onTap: () => setState(() => _receita = _receita.copyWith(favorito: !_receita.favorito))), () {}),
+                  ), GestureDetector(child: (_receita.favorito ? Icon(Icons.favorite, color: Colors.green,) : Icon(Icons.favorite_border, color: Colors.black54,)), onTap: () => setState(() => _receita = _receita.copyWith(favorito: !_receita.favorito))), () {setState(() => _receita = _receita.copyWith(favorito: !_receita.favorito));}),
                   FormItem(Icons.bookmark_border, Container(
                     padding: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 12.0, right: 12.0),
                     decoration: _categoriaSelecionada != null ? BoxDecoration(
@@ -200,7 +207,7 @@ class _ReceitaPageState extends State<ReceitaPage> {
                       ],
                     ),
                   ), Icon(Icons.keyboard_arrow_right, color: Colors.black54,), () async {
-                    dynamic result = await showCategoriaSelect(context, _receita.categoriaId);
+                    dynamic result = await showCategoriaSelect(context, _receita.categoriaId, 'receita');
                     if(result != null) {
                       if (result is Function) {
                         var novaCategoria = await result(context);

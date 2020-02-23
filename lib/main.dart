@@ -10,6 +10,7 @@ import 'package:financeiro_app/pages/home/home_page.dart';
 import 'package:financeiro_app/pages/initial_page.dart';
 import 'package:financeiro_app/pages/planejamento/planejamento_page.dart';
 import 'package:financeiro_app/pages/receita/receita_page.dart';
+import 'package:financeiro_app/pages/transacoes/pages/gerenciar_contas_page.dart';
 import 'package:financeiro_app/pages/transacoes/transacoes_page.dart';
 import 'package:flutter/material.dart';
 
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
           PlanejamentoPage.routeName: (context) => PlanejamentoPage(),
           DespesaPage.routeName: (context) => DespesaPage(),
           ReceitaPage.routeName: (context) => ReceitaPage(),
+          GerenciarContasPage.routeName: (context) => GerenciarContasPage(),
         },
       ),
     );

@@ -22,11 +22,33 @@ class TodasTransacoesPage extends StatelessWidget {
 
   final TransacoesPageBloc _transacoesBloc = BlocProvider.getBloc<TransacoesPageBloc>();
 
-  Stream<List<dynamic>> getData({DateTime data}) {
-    Stream<List<DespesaComRelacionamentos>> streamDespesas = _db.despesaDao.listDespesasComRelacionamentos(data: data);
-    Stream<List<ReceitaComRelacionamentos>> streamReceitas = _db.receitaDao.listReceitasComRelacionamentos(data: data);
+  Stream<List<DadosTodasTransacoes>> getData({DateTime data}) {
+    Stream<List<DadosTodasTransacoes>> streamDespesas = _db.despesaDao.listDespesasComRelacionamentos(data: data).map((List<DespesaComRelacionamentos> s) => s.map((v) =>
+        DadosTodasTransacoes(id: v.despesa.id, valor: v.despesa.valor, categoria: v.categoria, conta: v.conta, data: v.despesa.data, isEfetivado: v.despesa.pago, isReceita: false, nome: v.despesa.nome)).toList());
 
-    return Observable.combineLatest2(streamDespesas, streamReceitas, (a, b) => a + b);
+    Stream<List<DadosTodasTransacoes>> streamReceitas = _db.receitaDao.listReceitasComRelacionamentos(data: data).map((List<ReceitaComRelacionamentos> s) => s.map((v) =>
+        DadosTodasTransacoes(id: v.receita.id, valor: v.receita.valor, categoria: v.categoria, conta: v.conta, data: v.receita.data, isEfetivado: v.receita.recebido, isReceita: true, nome: v.receita.nome)).toList());
+
+
+    StreamController<List<DadosTodasTransacoes>> combinedStrem = StreamController<List<DadosTodasTransacoes>>();
+    List<DadosTodasTransacoes> lastDespesas = [];
+    List<DadosTodasTransacoes> lastReceitas = [];
+
+    streamDespesas.listen((onData) {
+      lastDespesas = onData;
+      onData.addAll(lastReceitas);
+      onData.sort((a, b) => a.data.compareTo(b.data));
+      combinedStrem.sink.add(onData);
+    });
+
+    streamReceitas.listen((onData) {
+      lastReceitas = onData;
+      onData.addAll(lastDespesas);
+      onData.sort((a, b) => a.data.compareTo(b.data));
+      combinedStrem.sink.add(onData);
+    });
+
+    return combinedStrem.stream;
   }
 
   @override
@@ -37,7 +59,7 @@ class TodasTransacoesPage extends StatelessWidget {
         stream: _transacoesBloc.mesSelecionado,
         initialData: DateTime.now(),
         builder: (context, snapshotMesSelecionado) {
-          return StreamBuilder(
+          return StreamBuilder <List<DadosTodasTransacoes>>(
               stream: getData(data: snapshotMesSelecionado.data),
               initialData: [],
               builder: (context, snapshot) {
@@ -50,15 +72,16 @@ class TodasTransacoesPage extends StatelessWidget {
                         itemCount: snapshot.data.length + 1,
                         itemBuilder: (context, index) {
                           if(index == 0) return Container();
-                          ReceitaComRelacionamentos item = snapshot.data[index - 1];
+                          DadosTodasTransacoes item = snapshot.data[index - 1];
+                          //print(item.toString());
                           bool selecionado = false;
-                          if(receitaSelecionada.data != null) selecionado = item.receita.id == receitaSelecionada.data.receita.id;
+                         // if(receitaSelecionada.data != null) selecionado = item.receita.id == receitaSelecionada.data.receita.id;
                           return MyListTile(
                             onTap: () {
                              // Navigator.of(context).pushNamed(ReceitaPage.routeName, arguments: item.receita.id);
                             },
                             onLongPress: () {
-                              _transacoesBloc.selecionaReceita(item);
+                             // _transacoesBloc.selecionaReceita(item);
                             },
                             selected: selecionado,
                             leading: Container(
@@ -70,21 +93,21 @@ class TodasTransacoesPage extends StatelessWidget {
                               ),
                               child: (selecionado ? Icon(Icons.check, color: Colors.white,) : Icon(iconMapping[item.categoria.icone], color: Colors.white, size: 16.0,)),
                             ),
-                            title: Text(item.receita.nome != null && item.receita.nome != '' ? item.receita.nome : item.categoria.nome),
+                            title: Text(item.nome != null && item.nome != '' ? item.nome : item.categoria.nome),
                             subtitle: Text('${item.categoria.nome} | ${item.conta.nome}'),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
-                                Text('R\$ ${item.receita.valor.toString()}', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),),
+                                Text('R\$ ${item.valor.toString()}', style: TextStyle(color: (item.isReceita ? Colors.green : Colors.redAccent), fontWeight: FontWeight.bold),),
                                 Container(
                                   width: 20.0,
                                   height: 20.0,
                                   decoration: BoxDecoration(
-                                    color: (item.receita.recebido ? Colors.green : Colors.green),
+                                    color: item.isEfetivado ? Colors.green : Colors.green,
                                     borderRadius: BorderRadius.circular(15.0),
                                   ),
-                                  child: Icon((item.receita.recebido ? Icons.check : Icons.no_sim), color: Colors.white, size: 12.0,),
+                                  child: Icon(item.isEfetivado ? Icons.check : Icons.no_sim, color: Colors.white, size: 12.0,),
                                 ),
                               ],
                             ),
@@ -92,11 +115,13 @@ class TodasTransacoesPage extends StatelessWidget {
                         },
                         separatorBuilder: (BuildContext context, int index) {
 
-                          DateTime d = snapshot.data[index].receita.data;
+                          var item = snapshot.data[index];
+
+                          DateTime d = item.data;
 
                           String text = getTextDay(d);
 
-                          if(index > 0 && text == getTextDay(snapshot.data[index - 1].receita.data)) return Container();
+                          if(index > 0 && text == getTextDay(d)) return Container();
 
                           return Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -113,4 +138,26 @@ class TodasTransacoesPage extends StatelessWidget {
       ),
     );
   }
+}
+
+
+class DadosTodasTransacoes {
+
+  final int id;
+  final String nome;
+  final DateTime data;
+  final bool isReceita;
+  final bool isEfetivado;
+  final Categoria categoria;
+  final Conta conta;
+  final double valor;
+
+  DadosTodasTransacoes({this.id, this.nome, this.data, this.isReceita, this.isEfetivado, this.categoria, this.conta, this.valor});
+
+  @override
+  String toString() {
+    return 'DadosTodasTransacoes{id: $id, nome: $nome, data: $data, isReceita: $isReceita, isEfetivado: $isEfetivado, categoria: $categoria, conta: $conta, valor: $valor}';
+  }
+
+
 }

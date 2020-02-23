@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-  Future<dynamic> showCategoriaSelect(BuildContext context, int categoriaSelecionadaId) {
+  Future<dynamic> showCategoriaSelect(BuildContext context, int categoriaSelecionadaId, String tipo) {
     final CategoriaDao _categoriaDao = Database.instance.categoriaDao;
     final ListaCategoriaBloc _bloc = BlocProvider.getBloc<ListaCategoriaBloc>();
 
@@ -31,7 +31,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
                   initialData: '',
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                    return StreamBuilder<List<Categoria>>(
-                        stream: _categoriaDao.search(snapshot.data),
+                        stream: _categoriaDao.search(snapshot.data, tipo),
                         builder: (context, AsyncSnapshot snapshot) {
                           const qtdOtherData = 4;
                           var data = snapshot.data;

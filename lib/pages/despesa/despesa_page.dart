@@ -25,7 +25,7 @@ class DespesaPage extends StatefulWidget {
 class _DespesaPageState extends State<DespesaPage> {
   final _formKey = GlobalKey();
 
-  var _despesa = Despesa().copyWith(pago: true, favorito: false, categoriaId: 1, contaId: 1);
+  var _despesa = Despesa().copyWith(pago: true, favorito: false, contaId: 1);
 
   Categoria _categoriaSelecionada;
   Subcategoria _subcategoriaSelecionada;
@@ -56,6 +56,13 @@ class _DespesaPageState extends State<DespesaPage> {
 
       if(id == null) {
         _blocDespesa.alteraData(DateTime.now());
+        await _db.categoriaDao.listCategoriasDespesas().listen((onData) {
+          var id = onData[0]?.id;
+          setState(() {
+            _despesa = _despesa.copyWith(categoriaId: id ?? 0);
+            _defineCategoria();
+          });
+        });
         await Future.delayed(Duration(milliseconds: 300));
         _abreCalculadora();
       } else {
@@ -252,7 +259,7 @@ class _DespesaPageState extends State<DespesaPage> {
                       ],
                     ),
                   ), Icon(Icons.keyboard_arrow_right, color: Colors.black54,), () async {
-                    dynamic result = await showCategoriaSelect(context, _despesa.categoriaId);
+                    dynamic result = await showCategoriaSelect(context, _despesa.categoriaId, 'despesa');
                     if(result != null) {
                       if (result is Function) {
                         var novaCategoria = await result(context);

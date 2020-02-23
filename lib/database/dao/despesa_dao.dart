@@ -14,7 +14,9 @@ class DespesaDao extends DatabaseAccessor<Database> with _$DespesaDaoMixin {
 
   Future<Despesa> find(int id) => (select(despesas)..where((t) => t.id.equals(id))).getSingle();
 
-  Stream<List<Despesa>> listDespesas() => select(despesas).watch();
+  Stream<List<Despesa>> list() => select(despesas).watch();
+
+  Stream<List<Despesa>> listByDate(DateTime d) => (select(despesas)..where((t) => t.data.year.equals(d.year) & t.data.month.equals(d.month))).watch();
 
   Future insertDespesa(Despesa despesa) => into(despesas).insert(despesa.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now()));
 
