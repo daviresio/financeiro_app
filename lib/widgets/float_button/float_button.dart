@@ -11,9 +11,10 @@ class FloatButton extends StatefulWidget {
   _FloatButtonState createState() => _FloatButtonState();
 }
 
-class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStateMixin {
-
-  final TransacoesPageBloc _transacoesBloc = BlocProvider.getBloc<TransacoesPageBloc>();
+class _FloatButtonState extends State<FloatButton>
+    with SingleTickerProviderStateMixin {
+  final TransacoesPageBloc _transacoesBloc =
+      BlocProvider.getBloc<TransacoesPageBloc>();
   final InitlalPageBloc _initialBloc = BlocProvider.getBloc<InitlalPageBloc>();
 
   Animation<double> _animation;
@@ -29,22 +30,26 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn)
       ..addStatusListener((status) {
-        if(status == AnimationStatus.completed) {
+        if (status == AnimationStatus.completed) {}
+      })
+      ..addListener(() {});
 
-        }
-
-      })..addListener(() {
-
-      });
-
-    _b1 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-1.0, 0.2)).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
-    _b2 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-1.2, -1.0)).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
-    _b3 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-1.0, -2.5)).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
-    _b4 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-0.5, -3.5)).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
-
+    _b1 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-1.0, 0.2))
+        .animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
+    _b2 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-1.2, -1.0))
+        .animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
+    _b3 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-1.0, -2.5))
+        .animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
+    _b4 = Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(-0.5, -3.5))
+        .animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack));
   }
 
   @override
@@ -66,12 +71,38 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
             ),
           ),
         ),
-
-        _renderSubIcon(Icon(Icons.swap_horiz, color: Colors.blueAccent,), _b1, 'Transferencia', ),
-        _renderSubIcon(Icon(Icons.trending_up, color: Colors.green,), _b2, 'Receita', ),
-        _renderSubIcon(Icon(Icons.credit_card, color: Colors.green,), _b3, 'Despesa Cartao', ),
-        _renderSubIcon(Icon(Icons.trending_down, color: Colors.redAccent,), _b4, 'Despesa', ),
-
+        _renderSubIcon(
+          Icon(
+            Icons.swap_horiz,
+            color: Colors.blueAccent,
+          ),
+          _b1,
+          'Transferencia',
+        ),
+        _renderSubIcon(
+          Icon(
+            Icons.trending_up,
+            color: Colors.green,
+          ),
+          _b2,
+          'Receita',
+        ),
+        _renderSubIcon(
+          Icon(
+            Icons.credit_card,
+            color: Colors.green,
+          ),
+          _b3,
+          'Despesa Cartao',
+        ),
+        _renderSubIcon(
+          Icon(
+            Icons.trending_down,
+            color: Colors.redAccent,
+          ),
+          _b4,
+          'Despesa',
+        ),
         Positioned(
           bottom: 60.0,
           right: 10.0,
@@ -87,7 +118,10 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
                         height: 50.0,
                         width: 50.0,
                         decoration: BoxDecoration(
-                          color: (pageSnapshot.data != 1 ? Colors.blueAccent : TransacoesConstantes.transacoesColor[snapshot.data]),
+                          color: (pageSnapshot.data != 1
+                              ? Colors.blueAccent
+                              : TransacoesConstantes
+                                  .transacoesColor[snapshot.data]),
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                         child: Material(
@@ -103,7 +137,10 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
                             },
                             child: AnimatedBuilder(
                               animation: _animation,
-                              child: Icon(Icons.add, color: Colors.white,),
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                              ),
                               builder: (BuildContext context, Widget child) {
                                 return Transform.rotate(
                                   angle: _animation.value * 0.9,
@@ -114,24 +151,26 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
                           ),
                         ),
                       );
-                    }
-                );
-              }
-          ),
+                    });
+              }),
         ),
-        (_active ? _getTouch(28.0, 97.0, () {}): Container()),
-        (_active ? _getTouch(110.0, 120.0, () {
-          Navigator.of(context).pushNamed(ReceitaPage.routeName);
-        }): Container()),
-        (_active ? _getTouch(215.0, 97.0, () {}): Container()),
-        (_active ? _getTouch(285, 35.0, () {
-          Navigator.of(context).pushNamed(DespesaPage.routeName);
-        }): Container()),
+        (_active ? _getTouch(28.0, 97.0, () {}) : Container()),
+        (_active
+            ? _getTouch(110.0, 120.0, () {
+                Navigator.of(context).pushNamed(ReceitaPage.routeName);
+              })
+            : Container()),
+        (_active ? _getTouch(215.0, 97.0, () {}) : Container()),
+        (_active
+            ? _getTouch(285, 35.0, () {
+                Navigator.of(context).pushNamed(DespesaPage.routeName);
+              })
+            : Container()),
       ],
     );
   }
-  _getTouch(double bottom, double right, Function onTap) {
 
+  _getTouch(double bottom, double right, Function onTap) {
     return Positioned(
       width: 120.0,
       height: 70.0,
@@ -145,10 +184,9 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
             onTap();
           },
         ),
-      ),);
-
+      ),
+    );
   }
-
 
   Widget _renderSubIcon(Icon icon, Animation animation, String label) {
     return Positioned(
@@ -180,7 +218,10 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
                 ),
                 Positioned(
                   bottom: 0,
-                  child: Text(label, style: TextStyle(color: Colors.white),),
+                  child: Text(
+                    label,
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -203,7 +244,4 @@ class _FloatButtonState extends State<FloatButton> with SingleTickerProviderStat
       _active = true;
     });
   }
-
-
-
 }
